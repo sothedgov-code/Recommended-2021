@@ -5,107 +5,100 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PEEF Recommended Applications 2021</title>
 <style>
-  body {
-    font-family: "Segoe UI", Tahoma, sans-serif;
-    font-size: 13px;
-    background: linear-gradient(135deg, #eef2f7, #f9fbff);
-    margin: 0;
-    padding: 25px;
-    user-select: none;
+  :root{
+    --bg:#e9edf3;
+    --light:#ffffff;
+    --dark:#cfd6e2;
+    --primary:#4a5bdc;
+    --text:#2f3445;
   }
 
-  h2 {
-    text-align: center;
-    margin-bottom: 15px;
-    color: #2c2f7a;
-    letter-spacing: 0.4px;
+  body{
+    font-family:"Segoe UI", Tahoma, sans-serif;
+    font-size:13px;
+    background:var(--bg);
+    margin:0;
+    padding:25px;
+    user-select:none;
+    color:var(--text);
   }
 
-  input {
-    width: 50%;
-    padding: 10px 12px;
-    margin: 0 auto 18px;
-    display: block;
-    border: 1px solid #c7cbe3;
-    border-radius: 8px;
-    outline: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  h2{
+    text-align:center;
+    margin-bottom:18px;
+    color:var(--primary);
+    letter-spacing:.4px;
   }
 
-  input:focus {
-    border-color: #3f51b5;
-    box-shadow: 0 0 0 3px rgba(63,81,181,0.15);
+  input{
+    width:50%;
+    padding:12px 14px;
+    margin:0 auto 20px;
+    display:block;
+    border:none;
+    border-radius:14px;
+    background:var(--bg);
+    outline:none;
+    box-shadow:
+      inset 4px 4px 8px var(--dark),
+      inset -4px -4px 8px var(--light);
   }
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    display: none;
-    background: #ffffff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  table{
+    width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    display:none;
+    background:var(--bg);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:
+      8px 8px 18px var(--dark),
+      -8px -8px 18px var(--light);
   }
 
-  th, td {
-    border-bottom: 1px solid #e6e9f0;
-    padding: 9px 6px;
-    text-align: center;
+  th, td{
+    padding:9px 6px;
+    text-align:center;
   }
 
-  thead tr {
-    background: linear-gradient(90deg, #3f51b5, #5c6bc0);
-    color: #ffffff;
-    font-weight: 600;
+  th{
+    font-weight:600;
+    color:var(--primary);
   }
 
-  tbody tr td {
-    background: #ffffff;
-    color: #333;
+  tbody tr:hover td{
+    background:#eef1f8;
   }
 
-  tbody tr:nth-child(even) td {
-    background: #f6f8fc;
+  #suggestions{
+    position:absolute;
+    width:50%;
+    margin-left:25%;
+    background:var(--bg);
+    border-radius:14px;
+    display:none;
+    z-index:9999;
+    box-shadow:
+      8px 8px 18px var(--dark),
+      -8px -8px 18px var(--light);
   }
 
-  tr:hover td {
-    background: #eef1ff;
-    transition: background 0.2s ease;
+  #suggestions div{
+    padding:9px 12px;
+    cursor:pointer;
   }
 
-  #suggestions {
-    position: absolute;
-    width: 50%;
-    margin-left: 25%;
-    background: #ffffff;
-    border: 1px solid #c7cbe3;
-    border-radius: 10px;
-    z-index: 9999;
-    display: none;
-    box-shadow: 0 8px 22px rgba(0,0,0,0.12);
-    overflow: hidden;
-  }
-
-  #suggestions div {
-    padding: 8px 10px;
-    cursor: pointer;
-    border-bottom: 1px solid #f0f2f8;
-    transition: background 0.2s ease;
-  }
-
-  #suggestions div:last-child {
-    border-bottom: none;
-  }
-
-  #suggestions div:hover {
-    background: #eef1ff;
+  #suggestions div:hover{
+    background:#eef1f8;
   }
 </style>
 </head>
+
 <body oncontextmenu="return false">
 
 <h2>PEEF Recommended Students List for 2021</h2>
+
 <input type="text" id="searchInput" placeholder="Type student name or father name here...">
 <div id="suggestions"></div>
 
@@ -118,6 +111,7 @@
       <th>Father Name</th>
       <th>Domicile</th>
       <th>Region</th>
+      <th>Year</th>
     </tr>
   </thead>
   <tbody id="tableBody"></tbody>
@@ -126,14 +120,31 @@
 <script>
 let data = [];
 
-// Fetch and parse CSV
 fetch('data2021.csv')
   .then(response => response.text())
   .then(text => {
     const lines = text.trim().split('\n');
+
     for (let i = 1; i < lines.length; i++) {
-      const [serial, name, gender, fatherName, domicile, region] = lines[i].split(',');
-      data.push({ serial, name, gender, fatherName, domicile, region });
+      const [
+        serial,
+        name,
+        gender,
+        fatherName,
+        domicile,
+        region,
+        year
+      ] = lines[i].split(',').map(v => v.trim());
+
+      data.push({
+        serial,
+        name,
+        gender,
+        fatherName,
+        domicile,
+        region,
+        year
+      });
     }
   });
 
@@ -153,11 +164,11 @@ searchInput.addEventListener('input', function () {
   }
 
   const matches = data.filter(item =>
-    (item.name && item.name.toLowerCase().includes(query)) ||
-    (item.fatherName && item.fatherName.toLowerCase().includes(query))
+    item.name.toLowerCase().includes(query) ||
+    item.fatherName.toLowerCase().includes(query)
   );
 
-  if (matches.length === 0) {
+  if (!matches.length) {
     suggestions.style.display = 'none';
     table.style.display = 'none';
     return;
@@ -166,7 +177,7 @@ searchInput.addEventListener('input', function () {
   matches.slice(0, 8).forEach(item => {
     const div = document.createElement('div');
     div.textContent = `${item.name} (Father: ${item.fatherName})`;
-    div.addEventListener('click', () => showRecord(item));
+    div.onclick = () => showRecord(item);
     suggestions.appendChild(div);
   });
 
@@ -185,19 +196,13 @@ function showRecord(item) {
       <td>${item.fatherName}</td>
       <td>${item.domicile}</td>
       <td>${item.region}</td>
+      <td>${item.year}</td>
     </tr>
   `;
 
   table.style.display = 'table';
 }
 
-// Disable PrintScreen, copy, and selection
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'PrintScreen') {
-    alert('Screenshots are disabled on this page.');
-    e.preventDefault();
-  }
-});
 document.addEventListener('copy', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 </script>
